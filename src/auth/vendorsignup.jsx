@@ -1,119 +1,324 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config/config";
 import { toast } from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight, ArrowLeft, User, Phone, MapPin, CheckCircle2, Wallet } from "lucide-react";
+
+const STEPS = [
+  { id: 1, label: "Account",  desc: "Login credentials",   icon: User   },
+  { id: 2, label: "Business", desc: "Your vendor details",  icon: Wallet },
+  { id: 3, label: "Contact",  desc: "How we reach you",     icon: Phone  },
+  { id: 4, label: "Address",  desc: "Business location",    icon: MapPin },
+];
 
 function Signup() {
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm();
 
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+
+  const fieldsByStep = {
+    1: ["name", "email", "password"],
+    2: ["companyname", "upiid"],
+    3: ["phoneno"],
+    4: ["address", "state", "city", "pincode"],
+  };
+
+  const nextStep = async () => {
+    const valid = await trigger(fieldsByStep[step]);
+    if (valid) setStep((s) => s + 1);
+  };
 
   const signup = async (data) => {
-    const toastid= toast.loading("Creating account..");
+    const toastid = toast.loading("Creating account..");
     try {
       const res = await axios.post(`${BACKEND_URL}/auth/vendor/register`, data);
-      toast.success(res.data.message,{id:toastid});
+      toast.success(res.data.message, { id: toastid });
       navigate("/vendor/verify_otp");
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Something went wrong",{id:toastid});
+      toast.error(err?.response?.data?.message || "Something went wrong", { id: toastid });
     }
   };
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 px-4">
-      <div className="bg-white border border-gray-200 rounded-3xl shadow-xl w-full max-w-md p-8">
+  const inputClass =
+    "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all";
+  const labelClass =
+    "block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2";
+  const errorClass =
+    "text-[10px] font-bold text-red-500 uppercase tracking-wider mt-1.5 flex items-center gap-1";
 
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-6">
-          <img src="/logo.png" alt="logo" className="w-24 h-20 object-contain" />
-          <h1 className="text-xl font-bold text-gray-800 mt-2">My<span className="text-orange-500" >Meal</span></h1>
-          <p className="text-xs text-gray-500">Vendor Registration</p>
+  const currentStep = STEPS[step - 1];
+
+  return (
+    <div className="min-h-screen bg-white font-sans flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md">
+
+        {/* BRAND HEADER */}
+        <div className="text-center mb-5">
+          <img src="/logo.png" alt="MyMeal" className="w-16 h-16 object-contain mx-auto mb-2" />
+          <h1 className="text-lg font-bold tracking-tight text-slate-900">
+            My<span className="text-orange-500">Meal</span>
+          </h1>
+          <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+            Register as a vendor to start serving
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit(signup)} className="space-y-4">
+        {/* STEP INDICATOR */}
+        <div className="flex items-center mb-5">
+          {STEPS.map((s, i) => {
+            const Icon = s.icon;
+            const isActive = step === s.id;
+            const isDone = step > s.id;
+            return (
+              <React.Fragment key={s.id}>
+                <div className="flex flex-col items-center gap-1">
+                  <div
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center border-2 transition-all duration-200 ${
+                      isDone || isActive
+                        ? "bg-orange-500 border-orange-500 shadow-sm shadow-orange-500/20"
+                        : "bg-white border-slate-200"
+                    }`}
+                  >
+                    {isDone ? (
+                      <CheckCircle2 size={14} className="text-white" />
+                    ) : (
+                      <Icon size={14} className={isActive ? "text-white" : "text-slate-300"} />
+                    )}
+                  </div>
+                  <span
+                    className={`text-[9px] font-bold uppercase tracking-widest transition-colors ${
+                      isActive || isDone ? "text-orange-500" : "text-slate-300"
+                    }`}
+                  >
+                    {s.label}
+                  </span>
+                </div>
+                {i < STEPS.length - 1 && (
+                  <div className="flex-1 mx-2 mb-4">
+                    <div
+                      className={`h-0.5 rounded-full transition-all duration-300 ${
+                        step > s.id ? "bg-orange-500" : "bg-slate-100"
+                      }`}
+                    />
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
 
-          {/* Row 1 */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <input
-                type="text"
-                placeholder="Full Name"
-                {...register("name", { required: "Required" })}
-                className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
-            </div>
+        {/* FORM CARD */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-[0_4px_24px_rgba(15,23,42,0.06)]">
 
-            <div>
-              <input
-                type="tel"
-                placeholder="Phoneno"
-                {...register("phoneno", { required: "Required" })}
-                className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              {errors.phoneno && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
+          {/* Step title */}
+          <div className="mb-4 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center">
+                {React.createElement(currentStep.icon, { size: 13, className: "text-orange-500" })}
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 leading-none">{currentStep.label}</h2>
+                <p className="text-[10px] text-slate-400 mt-0.5">{currentStep.desc}</p>
+              </div>
+              <span className="ml-auto text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                {step} / {STEPS.length}
+              </span>
             </div>
           </div>
 
-          {/* Row 2 */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <input
-                type="text"
-                placeholder="Company"
-                {...register("companyname", { required: "Required" })}
-                className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              {errors.companyname && <p className="text-red-500 text-xs">{errors.companyname.message}</p>}
+          <form onSubmit={handleSubmit(signup)}>
+
+            {/* STEP 1 — Account */}
+            {step === 1 && (
+              <div className="space-y-3">
+                <div>
+                  <label className={labelClass}>Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="Vendor name"
+                    {...register("name", { required: "Name is required" })}
+                    className={inputClass}
+                  />
+                  {errors.name && <p className={errorClass}>· {errors.name.message}</p>}
+                </div>
+                <div>
+                  <label className={labelClass}>Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="vendor@example.com"
+                    {...register("email", { required: "Email is required" })}
+                    className={inputClass}
+                  />
+                  {errors.email && <p className={errorClass}>· {errors.email.message}</p>}
+                </div>
+                <div>
+                  <label className={labelClass}>Password</label>
+                  <input
+                    type="password"
+                    placeholder="Min. 8 characters"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: { value: 8, message: "Minimum 8 characters required" },
+                    })}
+                    className={inputClass}
+                  />
+                  {errors.password && <p className={errorClass}>· {errors.password.message}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2 — Business */}
+            {step === 2 && (
+              <div className="space-y-3">
+                <div>
+                  <label className={labelClass}>Company / Business Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Sharma's Kitchen"
+                    {...register("companyname", { required: "Company name is required" })}
+                    className={inputClass}
+                  />
+                  {errors.companyname && <p className={errorClass}>· {errors.companyname.message}</p>}
+                </div>
+                <div>
+                  <label className={labelClass}>UPI ID</label>
+                  <input
+                    type="text"
+                    placeholder="yourname@upi"
+                    {...register("upiid", {
+                      required: "UPI ID is required",
+                      pattern: {
+                        value: /^[\w.\-]{2,256}@[a-zA-Z]{2,64}$/,
+                        message: "Enter a valid UPI ID (e.g. name@upi)",
+                      },
+                    })}
+                    className={inputClass}
+                  />
+                  {errors.upiid && <p className={errorClass}>· {errors.upiid.message}</p>}
+                  <p className="text-[10px] text-slate-400 mt-1.5">
+                    Payments from customers will be sent to this UPI ID.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3 — Contact */}
+            {step === 3 && (
+              <div className="space-y-3">
+                <div>
+                  <label className={labelClass}>Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="9876543210"
+                    {...register("phoneno", {
+                      required: "Phone number is required",
+                      pattern: { value: /^[0-9]{10}$/, message: "Enter a valid 10-digit number" },
+                    })}
+                    className={inputClass}
+                  />
+                  {errors.phoneno && <p className={errorClass}>· {errors.phoneno.message}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4 — Address */}
+            {step === 4 && (
+              <div className="space-y-3">
+                <div>
+                  <label className={labelClass}>Street / Shop Address</label>
+                  <input
+                    type="text"
+                    placeholder="123, Sector / Area Name"
+                    {...register("address", { required: "Address is required" })}
+                    className={inputClass}
+                  />
+                  {errors.address && <p className={errorClass}>· {errors.address.message}</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClass}>State</label>
+                    <input
+                      type="text"
+                      placeholder="Gujarat"
+                      {...register("state", { required: "Required" })}
+                      className={inputClass}
+                    />
+                    {errors.state && <p className={errorClass}>· {errors.state.message}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>City</label>
+                    <input
+                      type="text"
+                      placeholder="Surat"
+                      {...register("city", { required: "Required" })}
+                      className={inputClass}
+                    />
+                    {errors.city && <p className={errorClass}>· {errors.city.message}</p>}
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Pin Code</label>
+                  <input
+                    type="text"
+                    placeholder="395001"
+                    {...register("pincode", {
+                      required: "Pin code is required",
+                      pattern: { value: /^[0-9]{6}$/, message: "Enter valid 6-digit pin" },
+                    })}
+                    className={inputClass}
+                  />
+                  {errors.pincode && <p className={errorClass}>· {errors.pincode.message}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* NAVIGATION */}
+            <div className={`flex mt-5 gap-3 ${step > 1 ? "justify-between" : "justify-end"}`}>
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setStep((s) => s - 1)}
+                  className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest rounded-xl hover:border-orange-400 hover:text-orange-500 transition-all cursor-pointer"
+                >
+                  <ArrowLeft size={13} /> Back
+                </button>
+              )}
+              {step < STEPS.length ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="flex items-center gap-2 px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-colors cursor-pointer shadow-sm shadow-orange-500/20"
+                >
+                  Continue <ArrowRight size={13} />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-colors cursor-pointer shadow-sm shadow-orange-500/20 disabled:opacity-50"
+                >
+                  {isSubmitting ? "Creating..." : "Create Account"}
+                </button>
+              )}
             </div>
 
-            <div>
-              <input
-                type="email"
-                placeholder="Email"
-                {...register("email", { required: "Required" })}
-                className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
-            </div>
-          </div>
+          </form>
+        </div>
 
-          {/* Password */}
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
-              {...register("password", {
-                required: "Required",
-                minLength: { value: 8, message: "Min 8 characters" },
-              })}
-              className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
-          </div>
-
-          {/* Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 cursor-pointer hover:from-orange-600 hover:to-orange-700 text-white font-semibold p-2.5 rounded-lg text-sm transition"
-          >
-            {isSubmitting ? "Creating..." : "Create Account"}
-          </button>
-        </form>
-
-        {/* Footer */}
-        <p className="text-gray-500 text-xs text-center mt-5">
+        {/* FOOTER */}
+        <p className="text-xs text-slate-400 text-center mt-4">
           Already registered?{" "}
           <span
+            className="text-orange-500 font-bold cursor-pointer hover:text-orange-600 transition-colors"
             onClick={() => navigate("/vendor/login")}
-            className="text-orange-500 font-semibold cursor-pointer hover:underline"
           >
             Vendor Login
           </span>

@@ -4,57 +4,69 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useForm, Controller } from "react-hook-form";
 import { BACKEND_URL } from "../config/config.js";
+import {
+  User,
+  Building2,
+  Phone,
+  MapPin,
+  Mail,
+  Star,
+  Wallet,
+  FileText,
+  LogOut,
+  Edit3,
+  X,
+  CheckCircle2,
+} from "lucide-react";
 
-
-
-// --- Skeleton Component ---
-const SkeletonTile = ({ isLarge }) => (
-  <div className={`animate-pulse rounded-xl bg-gray-100 border border-gray-50 ${isLarge ? 'h-32' : 'h-20'}`}>
-    <div className="p-4">
-      <div className="h-2 w-12 bg-gray-200 rounded mb-3"></div>
-      <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
-    </div>
+// ── Skeleton tile ──────────────────────────────────────────────
+const SkeletonTile = ({ wide }) => (
+  <div className={`animate-pulse bg-white border border-slate-100 rounded-xl p-4 shadow-[4px_4px_0_rgba(15,23,42,0.03)] ${wide ? "md:col-span-2" : ""}`}>
+    <div className="h-2 w-16 bg-slate-100 rounded mb-3" />
+    <div className="h-5 w-3/4 bg-slate-100 rounded" />
   </div>
 );
 
-// --- DataTile Component ---
-const DataTile = ({ label, name, value, isEditing, isTextArea, onChange, error, inputRef, placeholder }) => (
-  <div className={`p-4 rounded-xl border ${error ? 'border-red-200 bg-red-50/10' : 'border-gray-100 bg-white'} shadow-sm transition-all duration-300`}>
-    <p className={`text-[9px] font-bold uppercase tracking-wider mb-2 transition-colors ${error ? 'text-red-500' : isEditing ? 'text-orange-600' : 'text-gray-400'}`}>
-      {label} {error && <span className="lowercase font-normal">({error.message})</span>}
-    </p>
-    
+// ── Field tile (view / edit) ──────────────────────────────────
+const DataTile = ({ label, icon: Icon, name, value, isEditing, isTextArea, onChange, error, placeholder }) => (
+  <div className={`bg-white border rounded-xl p-4 shadow-[4px_4px_0_rgba(15,23,42,0.03)] transition-all ${error ? "border-red-300" : isEditing ? "border-orange-300" : "border-slate-200"}`}>
+    <div className="flex items-center gap-1.5 mb-2">
+      {Icon && <Icon size={11} className={error ? "text-red-400" : isEditing ? "text-orange-500" : "text-slate-400"} />}
+      <p className={`text-[9px] font-bold uppercase tracking-widest ${error ? "text-red-500" : isEditing ? "text-orange-500" : "text-slate-400"}`}>
+        {label}
+        {error && <span className="ml-1 font-normal normal-case tracking-normal text-red-400">({error.message})</span>}
+      </p>
+    </div>
+
     {isEditing ? (
-      <div className="relative">
-        {isTextArea ? (
-          <textarea
-            name={name}
-            className="w-full bg-orange-50/30 border-2 border-orange-100 rounded-lg p-2.5 font-bold text-gray-900 outline-none resize-none text-sm transition-all focus:border-orange-500 focus:bg-white"
-            rows="2"
-            placeholder={placeholder}
-            value={value || ""}
-            onChange={onChange}
-          />
-        ) : (
-          <input
-            type="text"
-            name={name}
-            placeholder={placeholder}
-            ref={inputRef}
-            className="w-full bg-orange-50/30 border-2 border-orange-100 rounded-lg px-3 py-2 font-bold text-gray-900 outline-none text-sm transition-all focus:border-orange-500 focus:bg-white"
-            value={value || ""}
-            onChange={onChange}
-          />
-        )}
-      </div>
+      isTextArea ? (
+        <textarea
+          name={name}
+          rows="2"
+          placeholder={placeholder}
+          value={value || ""}
+          onChange={onChange}
+          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-900 placeholder:text-slate-300 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none transition-all"
+        />
+      ) : (
+        <input
+          type="text"
+          name={name}
+          placeholder={placeholder}
+          value={value || ""}
+          onChange={onChange}
+          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-900 placeholder:text-slate-300 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+        />
+      )
     ) : (
-      <p className="font-bold text-gray-800 truncate text-sm px-1 min-h-[1.25rem]">
-        {value || <span className="text-gray-300 font-normal italic">Not set</span>}
+      <p className="text-sm font-bold text-slate-900 px-0.5 min-h-[1.25rem] truncate">
+        {value || <span className="text-slate-300 font-normal italic">Not set</span>}
       </p>
     )}
   </div>
 );
 
+// ── Main component ─────────────────────────────────────────────
 const VendorProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -64,9 +76,9 @@ const VendorProfile = () => {
 
   const { control, handleSubmit, reset, watch, formState: { errors } } = useForm({
     defaultValues: {
-      name: "", email: "", phoneno: "", companyname: "", rating: 0, 
-      address: "", city: "", state: "", country: "", pincode: "", about: "", upiid: "",      
-    }
+      name: "", email: "", phoneno: "", companyname: "", rating: 0,
+      address: "", city: "", state: "", country: "", pincode: "", about: "", upiid: "",
+    },
   });
 
   const formData = watch();
@@ -74,7 +86,7 @@ const VendorProfile = () => {
   const Vendor_Authorization_Header = {
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${vendor_token}`
+      Authorization: `Bearer ${vendor_token}`,
     },
   };
 
@@ -94,23 +106,20 @@ const VendorProfile = () => {
 
   useEffect(() => {
     const cached = localStorage.getItem("vendor_profile");
-    if (cached) {
-        reset(JSON.parse(cached));
-        setFetching(false);
-    }
+    if (cached) { reset(JSON.parse(cached)); setFetching(false); }
     fetchVendorProfile();
   }, [fetchVendorProfile, reset]);
 
   const onSave = async (data) => {
     setIsSaving(true);
-    const toastid=toast.loading("Updating Profile..");
+    const toastid = toast.loading("Updating Profile..");
     try {
       const res = await axios.post(`${BACKEND_URL}/profile/vendor/update_profile`, data, Vendor_Authorization_Header);
-      toast.success(res.data.message || "Vendor Profile Updated",{id:toastid});
+      toast.success(res.data.message || "Vendor Profile Updated", { id: toastid });
       setIsEditing(false);
       localStorage.setItem("vendor_profile", JSON.stringify(data));
     } catch (err) {
-      toast.error(err.response?.data?.message || "Update failed",{id:toastid});
+      toast.error(err.response?.data?.message || "Update failed", { id: toastid });
     } finally {
       setIsSaving(false);
     }
@@ -122,164 +131,198 @@ const VendorProfile = () => {
     toast.success("Vendor Logged out Successfully");
   };
 
+  const fields = [
+    { label: "Owner Name",        name: "name",        icon: User,      rules: { required: "Required" } },
+    { label: "Company Name",      name: "companyname", icon: Building2, rules: { required: "Required" } },
+    { label: "Phone Number",      name: "phoneno",     icon: Phone,     rules: { required: "Required", pattern: { value: /^\d{10}$/, message: "10 digits only" } } },
+    { label: "City",              name: "city",        icon: MapPin,    rules: { required: "Required" } },
+    { label: "State",             name: "state",       icon: MapPin,    rules: { required: "Required" } },
+    { label: "Country",           name: "country",     icon: MapPin,    rules: { required: "Required" } },
+    { label: "UPI ID",            name: "upiid",       icon: Wallet,    rules: { required: "Required" } },
+    { label: "Postal Pincode",    name: "pincode",     icon: MapPin,    rules: { required: "Required", pattern: { value: /^\d{6}$/, message: "6 digits only" } } },
+  ];
+
   return (
-    <div className="h-fit bg-[#FBFBFC] p-4 flex items-start justify-center font-sans text-gray-900">
-      
-      <div className="w-full max-w-5xl bg-white rounded-[2rem] shadow-sm border border-gray-100 flex flex-col md:flex-row overflow-hidden h-fit">
-        
-        {/* Sidebar */}
-        <aside className="w-full md:w-64 bg-gray-50/50 p-6 border-r border-gray-100 flex flex-col items-center md:items-start text-center md:text-left">
-          {fetching ? (
-            <div className="w-20 h-20 bg-gray-200 rounded-2xl animate-pulse mb-4"></div>
-          ) : (
-            <div className="animate-fade-in w-20 h-20 bg-orange-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black mb-4 shadow-lg shadow-orange-100">
-              {formData.name?.charAt(0) || "V"}
-            </div>
-          )}
+    <div className="min-h-screen bg-white font-sans text-slate-900 px-6 md:px-12 py-10 pb-20">
+      <div className="max-w-5xl mx-auto">
 
-          {fetching ? (
-            <div className="space-y-2 mb-6 w-full flex flex-col items-center md:items-start">
-              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-3 w-40 bg-gray-200 rounded animate-pulse"></div>
-            </div>
-          ) : (
-            <div className="animate-fade-in">
-              <h1 className="text-lg font-black text-gray-900 leading-tight">{formData.companyname || "Business Name"}</h1>
-              <p className="text-gray-400 font-semibold text-[10px] mb-6">{formData.email}</p>
-            </div>
-          )}
+        {/* ── Page header ──────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-slate-200 mb-10">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
+              {fetching ? (
+                <span className="inline-block w-48 h-8 bg-slate-100 rounded animate-pulse" />
+              ) : (
+                formData.companyname || "Vendor Profile"
+              )}
+            </h1>
+            <p className="text-sm font-medium text-slate-400 mt-1">
+              Manage your business registration and contact details.
+            </p>
+          </div>
 
-          <nav className="flex flex-col gap-2 w-full">
-            <button 
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className={`w-full text-left px-4 py-2.5 rounded-lg cursor-pointer font-bold text-xs transition-all ${!isEditing && !fetching ? 'bg-orange-600 text-white shadow-md shadow-orange-100 hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-              disabled={isEditing || fetching}
-            >
-              Edit Business Info
-            </button>
-            <button onClick={logout} className="w-full cursor-pointer text-left px-4 py-2.5 rounded-lg font-bold text-xs text-red-500 hover:bg-red-50 transition-all">
-              Log Out
-            </button>
-          </nav>
-
-          {/* RATING CARD */}
-          <div className="w-full bg-orange-600 rounded-2xl mt-5 p-4 mb-6 shadow-lg shadow-orange-100 text-white transition-all duration-500">
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Store Rating</p>
-            {fetching ? (
-              <div className="h-8 w-16 bg-white/20 rounded animate-pulse mt-1"></div>
+          {/* Action buttons */}
+          <div className="flex items-center gap-3">
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => { setIsEditing(false); reset(); }}
+                  className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer"
+                >
+                  <X size={13} /> Cancel
+                </button>
+                <button
+                  form="profile-form"
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-sm shadow-orange-500/20 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <CheckCircle2 size={13} /> {isSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </>
             ) : (
-              <div className="animate-fade-in flex items-end gap-1 mt-1">
-                <span className="text-3xl font-black">{formData.rating || 0}</span>
-                <span className="text-lg font-bold opacity-80 mb-1">/ 5.0</span>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  disabled={fetching}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-sm shadow-orange-500/20 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <Edit3 size={13} /> Edit Profile
+                </button>
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-red-500 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-red-50 hover:border-red-200 transition-all cursor-pointer"
+                >
+                  <LogOut size={13} /> Log Out
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* ── Rating + identity strip ───────────────────────────── */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          {/* Avatar + name */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 flex-1 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
+            {fetching ? (
+              <div className="w-14 h-14 bg-slate-100 rounded-xl animate-pulse shrink-0" />
+            ) : (
+              <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-sm shadow-orange-500/20 shrink-0">
+                {formData.name?.charAt(0) || "V"}
               </div>
             )}
-            <div className="flex gap-0.5 mt-2 justify-center md:justify-start">
-              {[...Array(5)].map((_, i) => (
-                <svg key={i} className={`w-3.5 h-3.5 ${i < Math.floor(formData.rating || 0) ? 'text-yellow-300' : 'text-orange-400'}`} fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content Form */}
-        <form onSubmit={handleSubmit(onSave)} className="p-6 md:p-8 w-full">
-          <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-xl font-black text-gray-900">Vendor Profile</h2>
-              <p className="text-gray-400 text-[11px]">Manage your business registration and contact details.</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Registered Owner</p>
+              {fetching ? (
+                <div className="w-36 h-5 bg-slate-100 rounded animate-pulse" />
+              ) : (
+                <p className="text-base font-bold text-slate-900">{formData.name || "—"}</p>
+              )}
+              <p className="text-xs text-slate-400 font-medium mt-0.5">{formData.email}</p>
             </div>
-            {isEditing && (
-              <div className="animate-fade-in flex gap-2">
-                <button type="button" onClick={() => { setIsEditing(false); reset(); }} className="px-4 py-2 bg-white border cursor-pointer border-gray-200 rounded-lg font-bold text-[10px] uppercase text-gray-500 hover:bg-gray-50">
-                  Cancel
-                </button>
-                <button type="submit" disabled={isSaving} className="px-4 py-2 bg-orange-600 text-white rounded-lg font-bold cursor-pointer text-[10px] uppercase shadow-lg disabled:opacity-50 hover:bg-orange-700 transition-all">
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            )}
           </div>
 
-          <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 ${!fetching ? 'animate-fade-in' : ''}`}>
+          {/* Rating */}
+          <div className="bg-orange-500 border border-orange-500 rounded-xl p-5 flex items-center gap-4 shadow-sm shadow-orange-500/20 min-w-[180px]">
+            <div className="w-10 h-10 bg-orange-400 rounded-xl flex items-center justify-center shrink-0">
+              <Star size={18} className="text-white" fill="white" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-orange-100 mb-0.5">Store Rating</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black text-white">{formData.rating || 0}</span>
+                <span className="text-sm font-bold text-orange-200">/ 5.0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Profile form ─────────────────────────────────────── */}
+        <form id="profile-form" onSubmit={handleSubmit(onSave)}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
             {fetching ? (
               Array(8).fill(0).map((_, i) => <SkeletonTile key={i} />)
             ) : (
-              [
-                { label: "Owner Name", name: "name", rules: { required: "Required" } },
-                { label: "Company Name", name: "companyname", rules: { required: "Required" } },
-                { label: "Phone Number", name: "phoneno", rules: { required: "Required", pattern: { value: /^\d{10}$/, message: "10 digits only" } } },
-                { label: "City", name: "city", rules: { required: "Required" } },
-                { label: "State", name: "state", rules: { required: "Required" } },
-                { label: "Country", name: "country", rules: { required: "Required" } },
-                { label: "UPI ID", name: "upiid", rules: { required: "Required" } },
-                { label: "Postal Pincode", name: "pincode", rules: { required: "Required", pattern: { value: /^\d{6}$/, message: "6 digits only" } } },
-              ].map((field) => (
+              fields.map((field) => (
                 <Controller
                   key={field.name}
                   name={field.name}
                   control={control}
                   rules={field.rules}
                   render={({ field: { onChange, value }, fieldState: { error } }) => (
-                    <DataTile 
-                      label={field.label} name={field.name} value={value} 
-                      isEditing={isEditing} onChange={onChange} 
-                      placeholder={field.placeholder} error={error} 
+                    <DataTile
+                      label={field.label}
+                      icon={field.icon}
+                      name={field.name}
+                      value={value}
+                      isEditing={isEditing}
+                      onChange={onChange}
+                      placeholder={field.placeholder}
+                      error={error}
                     />
                   )}
                 />
               ))
             )}
 
+            {/* Email — read only */}
             {!fetching && (
-              <>
-                <div className="md:col-span-1">
-                  <DataTile label="Registered Email" name="email" value={formData.email} isEditing={false} />
-                </div>
-                <div className="md:col-span-1">
-                  <Controller
-                    name="about"
-                    control={control}
-                    rules={{ required: "About section is required" }}
-                    render={({ field: { onChange, value }, fieldState: { error } }) => (
-                      <DataTile 
-                        label="About Business" name="about" value={value} 
-                        isEditing={isEditing} isTextArea 
-                        placeholder="Describe your food services..."
-                        onChange={onChange} error={error} 
-                      />
-                    )}
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <Controller
-                    name="address"
-                    control={control}
-                    rules={{ required: "Address is required" }}
-                    render={({ field: { onChange, value }, fieldState: { error } }) => (
-                      <DataTile 
-                        label="Store Address" name="address" value={value} 
-                        isEditing={isEditing} isTextArea 
-                        placeholder="Enter full business address"
-                        onChange={onChange} error={error} 
-                      />
-                    )}
-                  />
-                </div>
-              </>
+              <div className="md:col-span-1">
+                <DataTile label="Registered Email" icon={Mail} name="email" value={formData.email} isEditing={false} />
+              </div>
+            )}
+
+            {/* About */}
+            {!fetching && (
+              <div className="md:col-span-1">
+                <Controller
+                  name="about"
+                  control={control}
+                  rules={{ required: "About section is required" }}
+                  render={({ field: { onChange, value }, fieldState: { error } }) => (
+                    <DataTile
+                      label="About Business" icon={FileText} name="about" value={value}
+                      isEditing={isEditing} isTextArea
+                      placeholder="Describe your food services..."
+                      onChange={onChange} error={error}
+                    />
+                  )}
+                />
+              </div>
+            )}
+
+            {/* Address — full width */}
+            {!fetching && (
+              <div className="md:col-span-2">
+                <Controller
+                  name="address"
+                  control={control}
+                  rules={{ required: "Address is required" }}
+                  render={({ field: { onChange, value }, fieldState: { error } }) => (
+                    <DataTile
+                      label="Store Address" icon={MapPin} name="address" value={value}
+                      isEditing={isEditing} isTextArea
+                      placeholder="Enter full business address"
+                      onChange={onChange} error={error}
+                    />
+                  )}
+                />
+              </div>
             )}
 
             {fetching && (
               <>
-                <div className="md:col-span-1"><SkeletonTile /></div>
-                <div className="md:col-span-1"><SkeletonTile /></div>
-                <div className="md:col-span-2"><SkeletonTile isLarge /></div>
+                <SkeletonTile />
+                <SkeletonTile />
+                <SkeletonTile wide />
               </>
             )}
           </div>
         </form>
+
       </div>
     </div>
   );

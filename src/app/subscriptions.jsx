@@ -3,11 +3,12 @@ import {
   Plus,
   Edit2,
   Calendar,
+  ChefHat,
   Search,
   X,
-  ExternalLink,
   CheckCircle2,
   PauseCircle,
+  Users,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -20,8 +21,6 @@ const Subscriptions = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [plans, setPlans] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
-
-
 
   useEffect(() => {
     getsubscriptions();
@@ -47,6 +46,7 @@ const Subscriptions = () => {
       toast.error(err?.response?.data?.message || "Something went wrong");
     }
   };
+
   const getsubscribers = async () => {
     try {
       const res = await axios.get(
@@ -99,9 +99,7 @@ const Subscriptions = () => {
       toggleModal();
       getsubscriptions();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Something went wrong", {
-        id: toastid,
-      });
+      toast.error(err?.response?.data?.message || "Something went wrong", { id: toastid });
     }
   };
 
@@ -113,64 +111,64 @@ const Subscriptions = () => {
         data,
         Vendor_Authorization_Header,
       );
-      toast.success(res.data.message || "Price updated successfully", {
-        id: toastid,
-      });
+      toast.success(res.data.message || "Price updated successfully", { id: toastid });
       setIsEditModalOpen(false);
       resetEdit();
       getsubscriptions();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Update failed", {
-        id: toastid,
-      });
+      toast.error(err?.response?.data?.message || "Update failed", { id: toastid });
     }
   };
 
+  // ── Shared form input styles ──────────────────────────────────
+  const inputClass =
+    "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all";
+  const labelClass =
+    "block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2";
+  const errorClass =
+    "text-[10px] font-bold text-red-500 uppercase tracking-wider mt-1.5";
+
+  // ── Skeleton loading state ────────────────────────────────────
   if (plans.length === 0) {
     return (
-      <div className="min-h-screen p-6 md:p-10 animate-pulse">
-        <div className="max-w-7xl mx-auto space-y-10">
-          {/* Header Skeleton */}
-          <div className="flex justify-between items-center">
+      <div className="min-h-screen bg-white font-sans px-6 md:px-12 py-10 animate-pulse">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="flex justify-between items-center pb-8 border-b border-slate-200">
             <div className="space-y-2">
-              <div className="h-8 w-40 bg-gray-200 rounded" />
-              <div className="h-4 w-60 bg-gray-200 rounded" />
+              <div className="h-8 w-44 bg-slate-100 rounded" />
+              <div className="h-4 w-64 bg-slate-50 rounded" />
             </div>
-            <div className="h-10 w-32 bg-gray-200 rounded-2xl" />
+            <div className="h-10 w-32 bg-slate-100 rounded-xl" />
           </div>
-
-          {/* Cards Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="p-6 bg-white rounded-2xl space-y-4">
+              <div key={i} className="p-6 bg-white border border-slate-100 rounded-xl space-y-4 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
                 <div className="flex justify-between items-center">
-                  <div className="w-10 h-10 bg-gray-200 rounded-xl" />
-                  <div className="w-20 h-4 bg-gray-200 rounded-full" />
+                  <div className="w-10 h-10 bg-slate-100 rounded-xl" />
+                  <div className="w-16 h-4 bg-slate-50 rounded" />
                 </div>
-                <div className="h-5 w-24 bg-gray-200 rounded" />
-                <div className="h-8 w-20 bg-gray-200 rounded" />
-                <div className="h-px bg-gray-200" />
+                <div className="h-5 w-24 bg-slate-100 rounded" />
+                <div className="h-8 w-20 bg-slate-100 rounded" />
+                <div className="h-px bg-slate-100" />
                 <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 rounded" />
-                  <div className="h-3 bg-gray-200 rounded w-4/5" />
+                  <div className="h-3 bg-slate-50 rounded" />
+                  <div className="h-3 bg-slate-50 rounded w-4/5" />
                 </div>
-                <div className="h-10 bg-gray-200 rounded-xl" />
+                <div className="h-10 bg-slate-100 rounded-xl" />
               </div>
             ))}
           </div>
-
-          {/* Table Skeleton */}
-          <div className="bg-white rounded-2xl p-6 space-y-6">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
             <div className="flex justify-between items-center">
-              <div className="h-5 w-40 bg-gray-200 rounded" />
-              <div className="h-8 w-48 bg-gray-200 rounded-xl" />
+              <div className="h-5 w-40 bg-slate-100 rounded" />
+              <div className="h-8 w-48 bg-slate-50 rounded-xl" />
             </div>
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex justify-between items-center py-3">
-                <div className="h-4 w-32 bg-gray-200 rounded" />
-                <div className="h-4 w-20 bg-gray-200 rounded" />
-                <div className="h-4 w-24 bg-gray-200 rounded" />
-                <div className="h-6 w-6 bg-gray-200 rounded-full" />
+              <div key={i} className="flex justify-between items-center py-2 border-t border-slate-50">
+                <div className="h-4 w-32 bg-slate-100 rounded" />
+                <div className="h-4 w-20 bg-slate-100 rounded" />
+                <div className="h-4 w-24 bg-slate-100 rounded" />
+                <div className="h-6 w-16 bg-slate-100 rounded-full" />
               </div>
             ))}
           </div>
@@ -180,35 +178,31 @@ const Subscriptions = () => {
   }
 
   return (
-    <div className="relative min-h-screen p-6 md:p-10 font-sans">
-      {/* --- ADD PLAN MODAL --- */}
+    <div className="relative min-h-screen bg-white font-sans text-slate-900 px-6 md:px-12 py-10 pb-20">
+
+      {/* ── ADD PLAN MODAL ─────────────────────────────────────── */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all">
-            <div className="flex items-center justify-between p-6 border-b border-gray-50 bg-orange-50">
-              <h3 className="text-xl font-bold text-gray-800">
-                Add Subscription Plan
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Add Subscription Plan</h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Set a new pricing tier for customers</p>
+              </div>
               <button
                 onClick={toggleModal}
-                className="p-2 hover:bg-white rounded-full text-gray-400 hover:text-orange-500 transition-all"
+                className="p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
-            <form
-              onSubmit={handleSubmit(addSubscription)}
-              className="p-6 space-y-5"
-            >
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">
-                  Select Duration
-                </label>
+            <form onSubmit={handleSubmit(addSubscription)} className="p-6 space-y-4">
+              <div>
+                <label className={labelClass}>Select Duration</label>
                 <select
-                  className="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm outline-none focus:ring-2 focus:ring-orange-400 transition cursor-pointer"
-                  {...register("duration", {
-                    required: "Duration is required",
-                  })}
+                  className={inputClass + " cursor-pointer"}
+                  {...register("duration", { required: "Duration is required" })}
                 >
                   <option value="">Select Duration</option>
                   <option value="1 Month">1 Month</option>
@@ -216,61 +210,43 @@ const Subscriptions = () => {
                   <option value="6 Months">6 Months</option>
                   <option value="1 Year">1 Year</option>
                 </select>
-                {errors.duration && (
-                  <p className="text-red-500 text-xs ml-1">
-                    {errors.duration.message}
-                  </p>
-                )}
+                {errors.duration && <p className={errorClass}>· {errors.duration.message}</p>}
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">
-                  Price (₹)
-                </label>
+              <div>
+                <label className={labelClass}>Price (₹)</label>
                 <input
                   type="number"
                   placeholder="Enter amount"
-                  className="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm outline-none focus:ring-2 focus:ring-orange-400 transition"
+                  className={inputClass}
                   {...register("price", {
                     required: "Price is required",
                     min: { value: 1, message: "Price must be greater than 0" },
                   })}
                 />
-                {errors.price && (
-                  <p className="text-red-500 text-xs ml-1">
-                    {errors.price.message}
-                  </p>
-                )}
+                {errors.price && <p className={errorClass}>· {errors.price.message}</p>}
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">
-                  Description
-                </label>
+              <div>
+                <label className={labelClass}>Description</label>
                 <textarea
                   placeholder="e.g. 2 Meals/Day, Free Delivery..."
                   rows="3"
-                  className="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm outline-none focus:ring-2 focus:ring-orange-400 transition resize-none"
-                  {...register("description", {
-                    required: "Description is required",
-                  })}
+                  className={inputClass + " resize-none"}
+                  {...register("description", { required: "Description is required" })}
                 />
-                {errors.description && (
-                  <p className="text-red-500 text-xs ml-1">
-                    {errors.description.message}
-                  </p>
-                )}
+                {errors.description && <p className={errorClass}>· {errors.description.message}</p>}
               </div>
-              <div className="pt-4 flex gap-3">
+              <div className="pt-2 flex gap-3">
                 <button
                   type="button"
                   onClick={toggleModal}
-                  className="flex-1 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-100 transition"
+                  className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-500 border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 py-3.5 rounded-xl font-bold text-sm bg-orange-500 hover:bg-orange-600 text-white shadow-lg active:scale-95 transition"
+                  className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? "Saving..." : "Save Plan"}
                 </button>
@@ -280,81 +256,61 @@ const Subscriptions = () => {
         </div>
       )}
 
-      {/* --- UPDATE PRICE MODAL --- */}
+      {/* ── UPDATE PRICE MODAL ─────────────────────────────────── */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all">
-            <div className="flex items-center justify-between p-6 border-b border-gray-50 bg-orange-50">
-              <h3 className="text-xl font-bold text-gray-800">
-                Update Plan Price
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Update Plan Price</h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Modify pricing for this subscription tier</p>
+              </div>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="p-2 hover:bg-white rounded-full text-gray-400 hover:text-orange-500 transition-all"
+                className="p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
-            <form
-              onSubmit={handleSubmitEdit(updatePrice)}
-              className="p-6 space-y-5"
-            >
+            <form onSubmit={handleSubmitEdit(updatePrice)} className="p-6 space-y-4">
               <input type="hidden" {...registerEdit("_id")} />
-              <div className="bg-gray-50 p-4 rounded-xl mb-2">
-                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
-                  Plan Duration
-                </p>
-                <p className="text-lg font-bold text-gray-700">
-                  {selectedPlan?.duration}
-                </p>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5">
+                <p className={labelClass + " mb-0.5"}>Plan Duration</p>
+                <p className="text-base font-bold text-slate-900">{selectedPlan?.duration}</p>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">
-                  New Price (₹)
-                </label>
+              <div>
+                <label className={labelClass}>New Price (₹)</label>
                 <input
                   type="number"
-                  className="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm outline-none focus:ring-2 focus:ring-orange-400 transition"
+                  className={inputClass}
                   {...registerEdit("price", {
                     required: "Price is required",
                     min: { value: 1, message: "Price must be greater than 0" },
                   })}
                 />
-                {editErrors.price && (
-                  <p className="text-red-500 text-xs ml-1">
-                    {editErrors.price.message}
-                  </p>
-                )}
+                {editErrors.price && <p className={errorClass}>· {editErrors.price.message}</p>}
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">
-                  New Description
-                </label>
+              <div>
+                <label className={labelClass}>New Description</label>
                 <textarea
                   rows="3"
-                  className="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm outline-none focus:ring-2 focus:ring-orange-400 transition resize-none"
-                  {...registerEdit("description", {
-                    required: "Description is required",
-                  })}
+                  className={inputClass + " resize-none"}
+                  {...registerEdit("description", { required: "Description is required" })}
                 />
-                {editErrors.description && (
-                  <p className="text-red-500 text-xs ml-1">
-                    {editErrors.description.message}
-                  </p>
-                )}
+                {editErrors.description && <p className={errorClass}>· {editErrors.description.message}</p>}
               </div>
-              <div className="pt-4 flex gap-3">
+              <div className="pt-2 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="flex-1 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-100 transition"
+                  className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-500 border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isEditing}
-                  className="flex-1 py-3.5 rounded-xl font-bold text-sm bg-orange-500 hover:bg-orange-600 text-white shadow-lg active:scale-95 transition"
+                  className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isEditing ? "Updating..." : "Update Price"}
                 </button>
@@ -365,189 +321,197 @@ const Subscriptions = () => {
       )}
 
       <div className="max-w-7xl mx-auto space-y-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+        {/* ── PAGE HEADER ──────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-slate-200">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
               Subscriptions
             </h1>
-            <p className="text-sm font-medium text-gray-400 mt-1">
+            <p className="text-sm font-medium text-slate-400 mt-1">
               Manage meal durations and pricing tiers.
             </p>
           </div>
-          <button
-            onClick={toggleModal}
-            className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 px-8 rounded-2xl transition-all shadow-lg active:scale-95 text-xs uppercase tracking-wider"
-          >
-            <Plus size={20} strokeWidth={3} />
-            <span>Add Plan</span>
-          </button>
-        </div>
-
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {plans.map((plan) => (
-            <div
-              key={plan._id}
-              className="flex flex-col bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:border-orange-100 transition-colors duration-300"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <div className="p-3 bg-orange-50 rounded-2xl text-orange-600">
-                  <Calendar size={20} strokeWidth={2.5} />
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 border border-gray-50 px-3 py-1 rounded-full">
-                  Tier
-                </span>
-              </div>
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 tracking-tight">
-                  {plan.duration}
-                </h3>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl font-black text-gray-900 tracking-tight">
-                    ₹{plan.price}
-                  </span>
-                  <span className="text-gray-400 text-xs font-medium lowercase">
-                    /plan
-                  </span>
-                </div>
-              </div>
-              <div className="flex-grow mb-8">
-                <div className="h-px w-full bg-gray-100 mb-6" />
-                <div className="flex gap-3 items-start">
-                  <CheckCircle2
-                    size={16}
-                    className="text-orange-500 mt-0.5 shrink-0"
-                  />
-                  <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                    {plan.description ||
-                      "Standard meal subscription with scheduled delivery."}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => openEditModal(plan)}
-                className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-2xl font-bold text-[11px] uppercase tracking-[0.15em] transition-all active:scale-95 shadow-lg shadow-orange-100"
-              >
-                <Edit2 size={14} strokeWidth={2.5} />
-                Manage Plan
-              </button>
+          <div className="flex items-center gap-3">
+            {/* Plan count pill */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="w-2 h-2 rounded-full bg-orange-500" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                {plans.length} {plans.length === 1 ? "Plan" : "Plans"}
+              </span>
             </div>
-          ))}
+            <button
+              onClick={toggleModal}
+              className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-5 rounded-xl transition-colors shadow-sm shadow-orange-500/20 active:scale-95 text-xs uppercase tracking-widest cursor-pointer"
+            >
+              <Plus size={15} strokeWidth={2.5} />
+              Add Plan
+            </button>
+          </div>
         </div>
 
-        {/* --- SUBSCRIBERS TABLE --- */}
-        <section className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-gray-800">
-              Active Subscribers
-            </h2>
+        {/* ── PLAN CARDS ───────────────────────────────────────── */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <Calendar size={18} className="text-orange-500" />
+            <h2 className="text-lg font-bold tracking-tight text-slate-900 uppercase">Subscription Tiers</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {plans.map((plan) => (
+              <div
+                key={plan._id}
+                className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col shadow-[4px_4px_0_rgba(15,23,42,0.03)] hover:border-slate-300 transition-colors"
+              >
+                {/* Icon */}
+                <div className="w-9 h-9 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-center text-orange-500 mb-4">
+                  <ChefHat size={16} />
+                </div>
+
+                {/* Duration + price */}
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{plan.duration}</p>
+                <p className="text-2xl font-bold tracking-tight text-slate-900">₹{plan.price}</p>
+
+                {/* Description */}
+                <div className="border-t border-slate-100 mt-4 pt-3 mb-5 flex-1">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 size={13} className="text-orange-500 mt-0.5 shrink-0" />
+                    <p className="text-xs text-slate-500 font-medium leading-snug">
+                      {plan.description || "Standard meal subscription with scheduled delivery."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action button */}
+                <button
+                  onClick={() => openEditModal(plan)}
+                  className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-lg font-bold text-xs uppercase tracking-widest transition-colors shadow-sm shadow-orange-500/20 cursor-pointer mt-auto"
+                >
+                  <Edit2 size={13} strokeWidth={2.5} />
+                  Manage Plan
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── SUBSCRIBERS TABLE ────────────────────────────────── */}
+        <section>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200 mb-6">
+            <div className="flex items-center gap-3">
+              <Users size={18} className="text-orange-500" />
+              <h2 className="text-lg font-bold tracking-tight text-slate-900 uppercase">Active Subscribers</h2>
+              {/* Live count pills */}
+              <div className="flex items-center gap-2 ml-1">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {subscribers.filter(s => !s.ispaused).length} Active
+                </span>
+                {subscribers.filter(s => s.ispaused).length > 0 && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full text-[10px] font-bold uppercase tracking-widest text-amber-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    {subscribers.filter(s => s.ispaused).length} Paused
+                  </span>
+                )}
+              </div>
+            </div>
             <div className="relative">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300"
-                size={16}
-              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
               <input
                 type="text"
                 placeholder="Search customers..."
-                className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none w-64 text-sm font-medium placeholder:text-gray-300"
+                className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none w-52 text-sm font-medium text-slate-900 placeholder:text-slate-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
               />
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-400 text-[10px] uppercase font-bold tracking-[0.15em]">
-                <tr>
-                  <th className="px-8 py-4 text-orange-600">Customer</th>
-                  <th className="px-8 py-4 text-orange-600">Plan</th>
-                  <th className="px-8 py-4 text-orange-600">Status</th>
-                  <th className="px-8 py-4 text-orange-600">Expiry</th>
-                  <th className="px-8 py-4 text-orange-600">Price</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {subscribers.map((item) => {
-                  // Basic date formatting
-                  const expiryDate = new Date(item.enddate).toLocaleDateString(
-                    "en-GB",
-                    {
+
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    {["Customer", "Plan", "Status", "Expiry", "Price"].map((col) => (
+                      <th key={col} className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-orange-500">
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {subscribers.map((item) => {
+                    const expiryDate = new Date(item.enddate).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
-                    },
-                  );
+                    });
 
-                  return (
-                    <tr
-                      key={item._id}
-                      className="hover:bg-orange-50/30 transition-colors"
-                    >
-                      {/* User Info from user_id object */}
-                      <td className="px-8 py-5">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-gray-800">
-                            {item.user_id?.name}
-                          </span>
-                        </div>
-                      </td>
+                    return (
+                      <tr key={item._id} className="hover:bg-slate-50/60 transition-colors">
 
-                      {/* Plan Info from subscription_id object */}
-                      <td className="px-8 py-5">
-                        <div className="flex flex-col">
-                          <span className="px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-[10px] font-black uppercase w-fit">
+                        {/* Customer */}
+                        <td className="px-6 py-4">
+                          <span className="font-bold text-slate-800">{item.user_id?.name}</span>
+                        </td>
+
+                        {/* Plan */}
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-50 border border-orange-100 text-orange-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
                             {item.subscription_id?.duration || item.duration}
                           </span>
-                        
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Status Logic using ispaused and pausedate */}
-                      <td className="px-8 py-5">
-                        {item.ispaused ? (
-                          <div className="flex flex-col">
-                            <span className="flex items-center gap-1.5 text-amber-600 font-bold text-xs uppercase tracking-tight">
-                              <PauseCircle size={14} /> Paused
-                            </span>
-                            {item.pausedate && (
-                              <span className="text-[10px] text-amber-400 italic">
-                                Since{" "}
-                                {new Date(item.pausedate).toLocaleDateString()}
+                        {/* Status */}
+                        <td className="px-6 py-4">
+                          {item.ispaused ? (
+                            <div className="flex flex-col">
+                              <span className="flex items-center gap-1.5 text-amber-600 font-bold text-xs uppercase tracking-tight">
+                                <PauseCircle size={13} /> Paused
                               </span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-tight">
-                            <CheckCircle2 size={14} /> Active
-                          </span>
-                        )}
-                      </td>
+                              {item.pausedate && (
+                                <span className="text-[10px] text-amber-400 mt-0.5">
+                                  Since {new Date(item.pausedate).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-tight">
+                              <CheckCircle2 size={13} /> Active
+                            </span>
+                          )}
+                        </td>
 
-                      {/* Expiry Date */}
-                      <td className="px-8 py-5">
-                        <div className="flex flex-col">
-                          <span className="text-gray-700 text-xs font-bold">
-                            {expiryDate}
+                        {/* Expiry */}
+                        <td className="px-6 py-4">
+                          <span className="text-slate-700 text-xs font-bold block">{expiryDate}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            {item.ispaid ? "Payment Verified" : "Pending Payment"}
                           </span>
-                          <span className="text-[10px] text-gray-400 font-medium lowercase">
-                            {item.ispaid
-                              ? "Payment Verified"
-                              : "Pending Payment"}
-                          </span>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="px-8 py-5">
-                        <span className="text-gray-800 font-bold">
-                          ₹{item.subscription_id?.price || item.price}
-                        </span>
-                        
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        {/* Price */}
+                        <td className="px-6 py-4">
+                          <span className="text-slate-800 font-bold">
+                            ₹{item.subscription_id?.price || item.price}
+                          </span>
+                        </td>
+
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {subscribers.length === 0 && (
+                <div className="py-14 flex flex-col items-center text-center border-t border-slate-100">
+                  <Users size={28} className="text-slate-200 mb-3" />
+                  <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No subscribers yet</p>
+                  <p className="text-xs text-slate-300 mt-1">Customers who subscribe will appear here.</p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
+
       </div>
     </div>
   );
