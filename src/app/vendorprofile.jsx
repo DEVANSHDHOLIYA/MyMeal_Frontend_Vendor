@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -17,6 +17,7 @@ import {
   Edit3,
   X,
   CheckCircle2,
+  Camera,
 } from "lucide-react";
 
 // ── Skeleton tile ──────────────────────────────────────────────
@@ -71,6 +72,10 @@ const VendorProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [preview, setPreview] = useState(null);
+  const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
+
   const navigate = useNavigate();
   const vendor_token = localStorage.getItem("vendor_token");
 
@@ -90,11 +95,31 @@ const VendorProfile = () => {
     },
   };
 
+  const profile_Authorization_Header = {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${vendor_token}`,
+    },
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const fetchVendorProfile = useCallback(async () => {
     try {
       const res = await axios.post(`${BACKEND_URL}/profile/vendor/get_profile`, {}, Vendor_Authorization_Header);
       if (res.data?.data) {
         reset(res.data.data);
+        if (res.data.data.photo) setPreview(res.data.data.photo);
         localStorage.setItem("vendor_profile", JSON.stringify(res.data.data));
       }
     } catch (err) {
@@ -106,7 +131,12 @@ const VendorProfile = () => {
 
   useEffect(() => {
     const cached = localStorage.getItem("vendor_profile");
-    if (cached) { reset(JSON.parse(cached)); setFetching(false); }
+    if (cached) { 
+        const parsed = JSON.parse(cached);
+        reset(parsed); 
+        if(parsed.photo) setPreview(parsed.photo);
+        setFetching(false); 
+    }
     fetchVendorProfile();
   }, [fetchVendorProfile, reset]);
 
@@ -114,7 +144,22 @@ const VendorProfile = () => {
     setIsSaving(true);
     const toastid = toast.loading("Updating Profile..");
     try {
-      const res = await axios.post(`${BACKEND_URL}/profile/vendor/update_profile`, data, Vendor_Authorization_Header);
+        const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("phoneno", data.phoneno);
+    formData.append("state", data.state);
+    formData.append("city", data.city);
+    formData.append("country", data.country);
+    formData.append("address", data.address);
+    formData.append("pincode", data.pincode);
+    formData.append("about", data.about);
+    formData.append("upiid", data.upiid);
+    formData.append("companyname", data.companyname);
+    formData.append("photo",file);
+     
+
+      const res = await axios.post(`${BACKEND_URL}/profile/vendor/update_profile`, formData, profile_Authorization_Header);
       toast.success(res.data.message || "Vendor Profile Updated", { id: toastid });
       setIsEditing(false);
       localStorage.setItem("vendor_profile", JSON.stringify(data));
@@ -161,7 +206,6 @@ const VendorProfile = () => {
             </p>
           </div>
 
-          {/* Action buttons */}
           <div className="flex items-center gap-3">
             {isEditing ? (
               <>
@@ -202,15 +246,39 @@ const VendorProfile = () => {
           </div>
         </div>
 
-        {/* ── Rating + identity strip ───────────────────────────── */}
+        {/* ── Identity + Rating strip ───────────────────────────── */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          {/* Avatar + name */}
           <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 flex-1 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
             {fetching ? (
               <div className="w-14 h-14 bg-slate-100 rounded-xl animate-pulse shrink-0" />
             ) : (
-              <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-sm shadow-orange-500/20 shrink-0">
-                {formData.name?.charAt(0) || "V"}
+              <div 
+                onClick={() => isEditing && fileInputRef.current.click()}
+                className={`w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-sm shadow-orange-500/20 shrink-0 relative overflow-hidden group transition-all duration-300 ${
+                  isEditing ? "cursor-pointer ring-4 ring-orange-500/30 scale-105" : ""
+                }`}
+              >
+                {preview ? (
+                  <img src={preview} alt="Vendor" className="w-full h-full object-cover" />
+                ) : (
+                  formData.companyname?.charAt(0) || "V"
+                )}
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition-all">
+                    <div className="bg-white/20 p-1.5 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform">
+                      <Camera size={18} className="text-white" />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             <div>
@@ -242,7 +310,6 @@ const VendorProfile = () => {
         {/* ── Profile form ─────────────────────────────────────── */}
         <form id="profile-form" onSubmit={handleSubmit(onSave)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
             {fetching ? (
               Array(8).fill(0).map((_, i) => <SkeletonTile key={i} />)
             ) : (
@@ -268,14 +335,12 @@ const VendorProfile = () => {
               ))
             )}
 
-            {/* Email — read only */}
             {!fetching && (
               <div className="md:col-span-1">
                 <DataTile label="Registered Email" icon={Mail} name="email" value={formData.email} isEditing={false} />
               </div>
             )}
 
-            {/* About */}
             {!fetching && (
               <div className="md:col-span-1">
                 <Controller
@@ -294,7 +359,6 @@ const VendorProfile = () => {
               </div>
             )}
 
-            {/* Address — full width */}
             {!fetching && (
               <div className="md:col-span-2">
                 <Controller
@@ -312,17 +376,8 @@ const VendorProfile = () => {
                 />
               </div>
             )}
-
-            {fetching && (
-              <>
-                <SkeletonTile />
-                <SkeletonTile />
-                <SkeletonTile wide />
-              </>
-            )}
           </div>
         </form>
-
       </div>
     </div>
   );
