@@ -158,7 +158,6 @@ const VendorProfile = () => {
     formData.append("companyname", data.companyname);
     formData.append("photo",file);
      
-
       const res = await axios.post(`${BACKEND_URL}/profile/vendor/update_profile`, formData, profile_Authorization_Header);
       toast.success(res.data.message || "Vendor Profile Updated", { id: toastid });
       setIsEditing(false);
@@ -248,15 +247,13 @@ const VendorProfile = () => {
 
         {/* ── Identity + Rating strip ───────────────────────────── */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 flex-1 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-6 flex-1 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
             {fetching ? (
-              <div className="w-14 h-14 bg-slate-100 rounded-xl animate-pulse shrink-0" />
+              <div className="w-24 h-24 bg-slate-100 rounded-xl animate-pulse shrink-0" />
             ) : (
               <div 
                 onClick={() => isEditing && fileInputRef.current.click()}
-                className={`w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-sm shadow-orange-500/20 shrink-0 relative overflow-hidden group transition-all duration-300 ${
-                  isEditing ? "cursor-pointer ring-4 ring-orange-500/30 scale-105" : ""
-                }`}
+                className={`w-24 h-24 bg-orange-500 rounded-xl flex items-center justify-center text-white text-4xl font-black shadow-sm shadow-orange-500/20 shrink-0 relative overflow-hidden group transition-all duration-300 ${isEditing ? "cursor-pointer ring-4 ring-orange-500/30 scale-105" : ""}`}
               >
                 {preview ? (
                   <img src={preview} alt="Vendor" className="w-full h-full object-cover" />
@@ -274,8 +271,8 @@ const VendorProfile = () => {
 
                 {isEditing && (
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition-all">
-                    <div className="bg-white/20 p-1.5 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform">
-                      <Camera size={18} className="text-white" />
+                    <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform">
+                      <Camera size={22} className="text-white" />
                     </div>
                   </div>
                 )}
