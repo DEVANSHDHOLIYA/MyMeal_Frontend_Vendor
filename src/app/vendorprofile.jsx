@@ -119,7 +119,7 @@ const VendorProfile = () => {
       const res = await axios.post(`${BACKEND_URL}/profile/vendor/get_profile`, {}, Vendor_Authorization_Header);
       if (res.data?.data) {
         reset(res.data.data);
-        if (res.data.data.photo) setPreview(res.data.data.photo);
+        if (res.data.data.avatar?.url) setPreview(res.data.data.avatar.url);
         localStorage.setItem("vendor_profile", JSON.stringify(res.data.data));
       }
     } catch (err) {
