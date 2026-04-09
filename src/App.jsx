@@ -23,7 +23,7 @@ const VendorDashboard = lazy(() => import("./app/vendordashboard"));
 const VendorVerifyOTP = lazy(() => import("./auth/vendorverifyotp"));
 const Subscriptions = lazy(() => import("./app/subscriptions"));
 const VendorProfile = lazy(() => import("./app/vendorprofile"));
-
+const Meals = lazy(()=> import("./app/meals"))
 export default function App() {
   return (
     <BrowserRouter>
@@ -34,6 +34,7 @@ export default function App() {
               <Route path="/vendor/dashboard" element={<VendorDashboard />} />
               <Route path="/vendor/subscriptions" element={<Subscriptions />} />
               <Route path="/vendor/profile" element={<VendorProfile />} />
+              <Route path="/vendor/meals" element={<Meals/>}/>
             </Route>
           </Route>
 
