@@ -192,9 +192,9 @@ function VendorDashboard() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      {["Customer", "Plan", "Status", "Expiry", "Price"].map((col) => (
+                      {["Customer", "Plan", "Status", "Today's Meal", "Expiry", "Price"].map((col) => (
                         <th key={col} className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-orange-500">
                           {col}
                         </th>
@@ -222,10 +222,54 @@ function VendorDashboard() {
                                 <PauseCircle size={13} /> Paused
                               </span>
                             ) : (
-                              <span className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-tight">
-                                <CheckCircle2 size={13} /> Active
-                              </span>
+                              <div className="flex flex-col gap-1">
+                                <span className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-tight">
+                                  <CheckCircle2 size={13} /> Active
+                                </span>
+                                {item.skippedDates?.includes(new Date().toLocaleDateString('en-CA')) && (
+                                  <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 bg-orange-50 border border-orange-200 text-orange-600 rounded text-[9px] font-bold uppercase tracking-wider">
+                                    Skipped Today
+                                  </span>
+                                )}
+                              </div>
                             )}
+                          </td>
+                          <td className="px-6 py-4">
+                            {(() => {
+                              if (item.ispaused) {
+                                return <span className="text-slate-400 font-semibold text-xs">Paused</span>;
+                              }
+                              if (item.skippedDates?.includes(new Date().toLocaleDateString('en-CA'))) {
+                                return <span className="text-orange-550 font-semibold text-xs">Skipped</span>;
+                              }
+                              
+                              const today = new Date();
+                              const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+                              
+                              const selection = item.selectedMeals?.find(m => m.date === todayStr);
+                              if (selection) {
+                                const optionName = selection.option === "secondary" ? "Alternate" : "Primary";
+                                const mealDetails = selection.meal_id?.meals?.[selection.option] || "";
+                                const shortName = mealDetails ? mealDetails.split(",")[0] : "Selected Meal";
+                                return (
+                                  <div>
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
+                                      selection.option === "secondary" ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "bg-orange-50 text-orange-600 border border-orange-100"
+                                    }`}>
+                                      {optionName}
+                                    </span>
+                                    <span className="text-xs font-bold text-slate-700 block mt-1 line-clamp-1">{shortName}</span>
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div>
+                                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-50 border border-slate-200 text-slate-500">
+                                    Default (Primary)
+                                  </span>
+                                </div>
+                              );
+                            })()}
                           </td>
                           <td className="px-6 py-4">
                             <span className="text-slate-700 text-xs font-bold block">{expiryDate}</span>

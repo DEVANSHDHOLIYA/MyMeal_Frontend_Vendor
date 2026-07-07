@@ -32,110 +32,131 @@ const meal_Authorization_Header = {
   },
 };
 
-const MealCard = ({ meal }) => (
-  <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[4px_4px_0_rgba(15,23,42,0.03)] hover:border-slate-300 transition-all hover:-translate-y-1 group">
-    <div className="relative h-48 overflow-hidden bg-slate-100">
-      <img
-        src={
-          meal.mealphoto?.url ||
-          "https://images.unsplash.com/photo-1495195129352-aec325a55b65?auto=format&fit=crop&q=80&w=400"
-        }
-        alt="Meal"
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-      />
-      <div className="absolute top-3 left-3 flex gap-2">
-        {!(Array.isArray(meal.subscription_id) && meal.subscription_id.length > 0) ? (
-          <span className="px-2.5 py-1 rounded-full bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1">
-            <Lock size={8} /> Subscription
-          </span>
-        ) : (
-          <span className="px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1">
-            <Globe size={8} /> Normal Meal
-          </span>
-        )}
-      </div>
-      <div className="absolute top-3 right-3">
-        <span
-          className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
-            meal.mealtime === "lunch"
-              ? "bg-orange-500 text-white"
-              : "bg-slate-800 text-white"
-          }`}
-        >
-          {meal.mealtime}
-        </span>
-      </div>
-    </div>
+const MealCard = ({ meal }) => {
+  const [showAlternate, setShowAlternate] = useState(false);
+  const hasAlternate = !!(meal.meals?.secondary || meal.mealphoto?.secondary?.url);
 
-    <div className="p-5 space-y-4 flex flex-col h-[calc(100%-12rem)]">
-      <div className="flex-1">
-        <h3 className="text-lg font-bold text-slate-900 tracking-tight">
-          {Array.isArray(meal.items)
-            ? meal.items[0]
-            : meal.items?.split(",")[0] || "Meal Package"}
-        </h3>
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {Array.isArray(meal.items)
-            ? meal.items.map((item, i) => (
-                <span
-                  key={i}
-                  className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100"
-                >
-                  {item}
-                </span>
-              ))
-            : meal.items
-                ?.split(",")
-                .filter((item) => item.trim() !== "")
-                .map((item, i) => (
-                  <span
-                    key={i}
-                    className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100"
-                  >
-                    {item.trim()}
-                  </span>
-                ))}
-        </div>
-      </div>
+  const displayImage = showAlternate && meal.mealphoto?.secondary?.url
+    ? meal.mealphoto.secondary.url
+    : meal.mealphoto?.primary?.url || meal.mealphoto?.url || "https://images.unsplash.com/photo-1495195129352-aec325a55b65?auto=format&fit=crop&q=80&w=400";
 
-      <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50">
-        <div>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
-            Price
-          </p>
-          <p className="text-base font-bold text-slate-900">₹{meal.price}</p>
+  const primaryTitle = meal.meals?.primary?.split(",")[0] || meal.items?.split(",")[0] || "Meal Package";
+  const alternateTitle = meal.meals?.secondary?.split(",")[0] || "Alternate Meal";
+  const displayTitle = showAlternate ? alternateTitle : primaryTitle;
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[4px_4px_0_rgba(15,23,42,0.03)] hover:border-slate-300 transition-all hover:-translate-y-1 group">
+      <div className="relative h-48 overflow-hidden bg-slate-100">
+        <img
+          src={displayImage}
+          alt="Meal"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute top-3 left-3 flex gap-2">
+          {(Array.isArray(meal.subscription_id) ? meal.subscription_id.some(id => id && id !== "null" && id !== "undefined") : !!meal.subscription_id && meal.subscription_id !== "null" && meal.subscription_id !== "undefined") ? (
+            <span className="px-2.5 py-1 rounded-full bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1">
+              <Lock size={8} /> Subscription
+            </span> 
+          ) : (
+            <span className="px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1">
+              <Globe size={8} /> Normal Meal
+            </span>
+          )}
         </div>
-        <div>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
-            Status
-          </p>
-          <p
-            className={`text-[10px] font-black uppercase tracking-tight ${meal.isavilable ? "text-emerald-500" : "text-rose-500"}`}
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+          <span
+            className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+              meal.mealtime === "lunch"
+                ? "bg-orange-500 text-white"
+                : "bg-slate-800 text-white"
+            }`}
           >
-            {meal.isavilable ? "Available" : "Sold Out"}
-          </p>
+            {meal.mealtime}
+          </span>
+          {showAlternate && (
+            <span className="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm bg-indigo-500 text-white">
+              Alternate
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-2">
-          <Calendar size={14} className="text-orange-500" />
-          <span className="text-xs font-bold text-slate-500">
-            {meal.meal_date
-              ? new Date(meal.meal_date).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                })
-              : "N/A"}
-          </span>
+      <div className="p-5 space-y-4 flex flex-col h-[calc(100%-12rem)]">
+        <div className="flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight line-clamp-1 flex-1">
+              {displayTitle}
+            </h3>
+            {hasAlternate && (
+              <button
+                onClick={() => setShowAlternate(!showAlternate)}
+                className="shrink-0 text-[9px] font-bold uppercase tracking-widest text-orange-600 bg-orange-50 hover:bg-orange-100 px-2 py-1 rounded border border-orange-200 transition-colors cursor-pointer shadow-sm"
+              >
+                {showAlternate ? "View Primary" : "View Alternate"}
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {!showAlternate && meal.meals?.primary && (
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                {meal.meals.primary}
+              </span>
+            )}
+            {showAlternate && meal.meals?.secondary && (
+              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                {meal.meals.secondary}
+              </span>
+            )}
+            {!meal.meals && meal.items?.split(",")?.map((item, i) => (
+              <span
+                key={i}
+                className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100"
+              >
+                {item.trim()}
+              </span>
+            ))}
+          </div>
         </div>
-        <button className="text-slate-300 hover:text-slate-600 transition-colors cursor-pointer">
-          <MoreHorizontal size={18} />
-        </button>
+
+        <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50">
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
+              Price
+            </p>
+            <p className="text-base font-bold text-slate-900">₹{meal.price}</p>
+          </div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
+              Status
+            </p>
+            <p
+              className={`text-[10px] font-black uppercase tracking-tight ${meal.isavilable ? "text-emerald-500" : "text-rose-500"}`}
+            >
+              {meal.isavilable ? "Available" : "Sold Out"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-2">
+            <Calendar size={14} className="text-orange-500" />
+            <span className="text-xs font-bold text-slate-500">
+              {meal.meal_date
+                ? new Date(meal.meal_date).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                  })
+                : "N/A"}
+            </span>
+          </div>
+          <button className="text-slate-300 hover:text-slate-600 transition-colors cursor-pointer">
+            <MoreHorizontal size={18} />
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const MealCardSkeleton = () => (
   <div className="bg-white border border-slate-100 rounded-xl overflow-hidden flex flex-col animate-pulse min-h-[380px]">
@@ -180,16 +201,20 @@ const Meals = () => {
   const [plans, setPlans] = useState([]);
   const [meals, setMeals] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
-  const fileInputRef = useRef(null);
+  const [primaryImagePreview, setPrimaryImagePreview] = useState(null);
+  const [secondaryImagePreview, setSecondaryImagePreview] = useState(null);
+  const primaryFileInputRef = useRef(null);
+  const secondaryFileInputRef = useRef(null);
 
   const [newMeal, setNewMeal] = useState({
-    items: "",
+    primary_meal: "",
+    secondary_meal: "",
     meal_date: new Date().toISOString().split("T")[0],
     price: "",
     subscription_id: "",
     mealtime: "lunch",
-    image: null,
+    primary: null,
+    secondary: null,
     mealType: "subscription",
     applyAllPlans: false,
   });
@@ -232,13 +257,25 @@ const Meals = () => {
     fetchMeals();
   }, [fetchPlans, fetchMeals]);
 
-  const handleImageChange = (e) => {
+  const handlePrimaryImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setNewMeal({ ...newMeal, image: file });
+      setNewMeal({ ...newMeal, primary: file });
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        setPrimaryImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSecondaryImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewMeal({ ...newMeal, secondary: file });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSecondaryImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -257,17 +294,22 @@ const Meals = () => {
       if (newMeal.mealType === "subscription") {
         if (newMeal.applyAllPlans) {
           newMeal.subscription_id.forEach((id) => {
-            formData.append("subscription_id[]", id);
+            formData.append("subscription_id", id);
           });
         } else {
           formData.append("subscription_id", newMeal.subscription_id);
         }
       }
 
-      formData.append("items", newMeal.items.trim());
+      formData.append("primary_meal", newMeal.primary_meal.trim());
       formData.append("price", newMeal.price);
       formData.append("mealtime", newMeal.mealtime);
-      formData.append("photo", newMeal.image);
+      formData.append("primary", newMeal.primary);
+      
+      if (newMeal.mealType === "subscription") {
+        if (newMeal.secondary_meal) formData.append("secondary_meal", newMeal.secondary_meal.trim());
+        if (newMeal.secondary) formData.append("secondary", newMeal.secondary);
+      }
 
       const res = await axios.post(
         `${BACKEND_URL}/meals/addmeal`,
@@ -277,11 +319,14 @@ const Meals = () => {
 
       const mockNewMeal = {
         _id: res.data?.data?._id || `meal_${Date.now()}`,
-        mealphoto: res.data?.data?.mealphoto || { url: imagePreview },
+        mealphoto: res.data?.data?.mealphoto || { primary: { url: primaryImagePreview } },
         subscription_id:
           newMeal.mealType === "subscription" ? newMeal.subscription_id : null,
         mealtime: newMeal.mealtime,
-        items: newMeal.items,
+        meals: {
+          primary: newMeal.primary_meal,
+          secondary: newMeal.secondary_meal,
+        },
         price: newMeal.price,
         isavilable: true,
         meal_date: newMeal.meal_date,
@@ -303,25 +348,26 @@ const Meals = () => {
 
   const resetForm = () => {
     setNewMeal({
-      items: "",
+      primary_meal: "",
+      secondary_meal: "",
       meal_date: new Date().toISOString().split("T")[0],
       price: "",
       subscription_id: plans[0]?._id || "",
       mealtime: "lunch",
-      image: null,
+      primary: null,
+      secondary: null,
       mealType: "subscription",
       applyAllPlans: false,
     });
-    setImagePreview(null);
+    setPrimaryImagePreview(null);
+    setSecondaryImagePreview(null);
   };
 
   const filteredMeals = Array.isArray(meals)
     ? meals.filter(
         (meal) =>
-          (Array.isArray(meal.items) &&
-            meal.items.some((item) =>
-              item.toLowerCase().includes(searchQuery.toLowerCase()),
-            )) ||
+          meal.meals?.primary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          meal.meals?.secondary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (typeof meal.items === "string" &&
             meal.items.toLowerCase().includes(searchQuery.toLowerCase())),
       )
@@ -444,53 +490,85 @@ const Meals = () => {
                 className="p-6 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar"
               >
                 {/* Compact Image Upload */}
-                <div className="flex items-center gap-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                  <div
-                    onClick={() => fileInputRef.current.click()}
-                    className="relative w-24 h-24 shrink-0 rounded-xl border-2 border-dashed border-slate-200 bg-white flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-orange-500 hover:bg-orange-50/50 transition-all overflow-hidden group"
-                  >
-                    {imagePreview ? (
-                      <>
-                        <img
-                          src={imagePreview}
-                          className="w-full h-full object-cover"
-                          alt="preview"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                          <Camera size={14} className="text-white" />
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <Upload
-                          size={18}
-                          className="text-orange-500 group-hover:scale-110 transition-transform"
-                        />
-                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">
-                          Upload
-                        </p>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
+                {/* Photo Uploads */}
+                <div className={`grid ${newMeal.mealType === "subscription" ? "grid-cols-2" : "grid-cols-1"} gap-4`}>
+                  <div className="flex flex-col items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <p className="text-xs font-bold text-slate-700 uppercase tracking-widest text-center">Primary Photo</p>
+                    <div
+                      onClick={() => primaryFileInputRef.current.click()}
+                      className="relative w-24 h-24 shrink-0 rounded-xl border-2 border-dashed border-slate-200 bg-white flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-orange-500 hover:bg-orange-50/50 transition-all overflow-hidden group"
+                    >
+                      {primaryImagePreview ? (
+                        <>
+                          <img
+                            src={primaryImagePreview}
+                            className="w-full h-full object-cover"
+                            alt="preview"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <Camera size={14} className="text-white" />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Upload
+                            size={18}
+                            className="text-orange-500 group-hover:scale-110 transition-transform"
+                          />
+                          <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">
+                            Upload
+                          </p>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        ref={primaryFileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handlePrimaryImageChange}
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-slate-700 uppercase tracking-widest leading-none">
-                      Meal Photo
-                    </p>
-                    <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
-                      Upload an image for this meal.
-                      <br />
-                      <span className="text-orange-500/80 font-bold">
-                        Image sent to API instantly.
-                      </span>
-                    </p>
-                  </div>
+                  {newMeal.mealType === "subscription" && (
+                    <div className="flex flex-col items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                      <p className="text-xs font-bold text-slate-700 uppercase tracking-widest text-center">Secondary Photo</p>
+                      <div
+                        onClick={() => secondaryFileInputRef.current.click()}
+                        className="relative w-24 h-24 shrink-0 rounded-xl border-2 border-dashed border-slate-200 bg-white flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-orange-500 hover:bg-orange-50/50 transition-all overflow-hidden group"
+                      >
+                        {secondaryImagePreview ? (
+                          <>
+                            <img
+                              src={secondaryImagePreview}
+                              className="w-full h-full object-cover"
+                              alt="preview"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                              <Camera size={14} className="text-white" />
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <Upload
+                              size={18}
+                              className="text-orange-500 group-hover:scale-110 transition-transform"
+                            />
+                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">
+                              Optional
+                            </p>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          ref={secondaryFileInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleSecondaryImageChange}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Meal Type Selection */}
@@ -585,19 +663,36 @@ const Meals = () => {
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">
-                    Items Included
-                  </label>
-                  <textarea
-                    required
-                    placeholder="E.g. Paneer, Roti, Dal..."
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:bg-white transition-all text-sm font-bold min-h-[80px] resize-none"
-                    value={newMeal.items}
-                    onChange={(e) =>
-                      setNewMeal({ ...newMeal, items: e.target.value })
-                    }
-                  />
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">
+                      Primary Meal Details
+                    </label>
+                    <input
+                      required
+                      placeholder="E.g. Shahi Paneer, 3 Roti, Rice"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:bg-white transition-all text-sm font-bold"
+                      value={newMeal.primary_meal}
+                      onChange={(e) =>
+                        setNewMeal({ ...newMeal, primary_meal: e.target.value })
+                      }
+                    />
+                  </div>
+                  {newMeal.mealType === "subscription" && (
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">
+                        Secondary Meal Details (Optional)
+                      </label>
+                      <input
+                        placeholder="E.g. Sweet, Salad, Extra Dal"
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:bg-white transition-all text-sm font-bold"
+                        value={newMeal.secondary_meal}
+                        onChange={(e) =>
+                          setNewMeal({ ...newMeal, secondary_meal: e.target.value })
+                        }
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">

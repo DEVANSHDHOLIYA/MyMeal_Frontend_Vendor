@@ -5,7 +5,7 @@ const navLinks = [
   { label: "Overview", to: "/vendor/dashboard" },
   { label: "Meals", to: "/vendor/meals" },
   { label: "Subscriptions", to: "/vendor/subscriptions" },
-  { label: "Analytics", to: "/vendor/analytics" },
+  { label: "Orders", to: "/vendor/orders" },
 ];
 
 const VendorNav = () => {
